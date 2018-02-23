@@ -1,0 +1,9 @@
+ERR: parse error
+DBG: debug message
+WARN: connection refused
+ERR: parse error
+DBG: debug message
+WARN: connection refused
+ERR: parse error, #2
+DBG: debug message, #2
+WARN: connection refused, #2

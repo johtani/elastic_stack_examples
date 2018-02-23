@@ -1,0 +1,116 @@
+
+## Ingest Node Sample
+# Grok - "message": "55.3.244.1 GET /index.html 15824 0.043"
+
+PUT _ingest/pipeline/grok-sample
+{
+  "description": "Grok pattern sample",
+  "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "%{IP:client} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:duration}"
+        ]
+      }
+    }
+  ]
+}
+
+GET _ingest/pipeline/grok-sample
+
+POST _ingest/pipeline/grok-sample/_simulate
+{
+  "docs": [
+    {
+      "_source": {
+         "message": "55.3.244.1 GET /index.html 15824 0.043"
+      }
+    }
+  ]
+}
+
+# GeoIP - Need to install ingest-geoip plugin to Elasticsearch. https://www.elastic.co/guide/en/elasticsearch/plugins/current/ingest-geoip.html
+GET _cat/plugins
+
+PUT _ingest/pipeline/grok-geoip-sample
+{
+  "description": "Grok and GeoIP",
+  "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "%{IP:client} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:duration}"
+        ]
+      }
+    },
+    {
+      "geoip" : {
+        "field" : "client"
+      }
+    }
+  ]
+}
+
+## only Grok
+POST _ingest/pipeline/grok-sample/_simulate
+{
+  "docs": [
+    {
+      "_source": {
+         "message": "55.3.244.1 GET /index.html 15824 0.043"
+      }
+    }
+  ]
+}
+
+## Grok & GeoIP
+POST _ingest/pipeline/grok-geoip-sample/_simulate
+{
+  "docs": [
+    {
+      "_source": {
+         "message": "55.3.244.1 GET /index.html 15824 0.043"
+      }
+    }
+  ]
+}
+
+# Remove message field
+PUT _ingest/pipeline/sample-parse-pipeline
+{
+  "description": "Grok and GeoIP, then remove message",
+  "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "%{IP:client} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:duration}"
+        ]
+      }
+    },
+    {
+      "geoip" : {
+        "field" : "client"
+      }
+    },
+    {
+      "remove": {
+        "field": "message"
+      }
+    }
+  ]
+}
+
+## simulate
+POST _ingest/pipeline/sample-parse-pipeline/_simulate
+{
+  "docs": [
+    {
+      "_source": {
+         "message": "55.3.244.1 GET /index.html 15824 0.043"
+      }
+    }
+  ]
+}

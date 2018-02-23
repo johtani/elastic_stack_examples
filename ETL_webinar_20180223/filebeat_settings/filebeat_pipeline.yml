@@ -1,0 +1,25 @@
+###################### Filebeat Configuration Example #########################
+
+#=========================== Filebeat prospectors =============================
+
+filebeat.prospectors:
+- type: log
+  enabled: true
+  paths:
+    - /tmp/example_logs/simple_access.log
+
+#==================== Elasticsearch template setting ==========================
+
+setup.template.name: "filebeat-simple"
+setup.template.pattern: "simple-%{[beat.version]}-*"
+setup.template.fields: "${path.config}/fields_json.yml"
+setup.template.settings:
+  index.number_of_shards: 1
+
+#================================ Outputs =====================================
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["localhost:9200"]
+  index: "simple-%{[beat.version]}-%{+yyyy.MM.dd}"
+#  pipeline: sample-parse-pipeline
